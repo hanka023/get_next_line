@@ -3,7 +3,8 @@
 CC = cc
 
 # Kompilační příznaky
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -fPIE
+
 
 # Zdrojové soubory
 SRCS = \
@@ -15,14 +16,14 @@ SRCS = \
 OBJS = $(SRCS:%.c=%.o)
 
 # Název knihovny
-NAME = get_next_line.a
+NAME = gnl.a
 
 # Výchozí cíl
 all: $(NAME)
 
 # Vytvoření statické knihovny
 $(NAME): $(OBJS)
-	ar rcs $(NAME) $(OBJS)
+	ar rcs $(NAME) $(OBJS) -o $(NAME)
 
 # Překlad .c → .o
 %.o: %.c

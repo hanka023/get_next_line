@@ -1,59 +1,102 @@
 
-#include <fcntl.h>   // open()
-#include <unistd.h>  // read(), close()
-#include <stdio.h>   // printf()
-#include <stdlib.h>  // exit()
 #include "get_next_line.h"
+#include <fcntl.h>  // open()
+#include <stdio.h>  // printf()
+#include <stdlib.h> // exit()
+#include <unistd.h> // read(), close()
 
-// char 	*read_file(int fd)
-// {
-// 	ssize_t byte_read;
-// 	char *buf[BUFFER_SIZE + 1];
-// 	static char *buffer = NULL;
-// 	char tmp;
-
-
-// 	byte_read = read(fd, buf, BUFFER_SIZE);
-// 	buf[byte_read] = '\0';
-
-// 	tmp = strjoin(buffer, buf);
-// 	free (buffer);
-// 	buffer = tmp;
-// 	return (tmp);
-// }
-
-
-// char *get_next_line(int fd)
-// {
-//     static char *buffer;
-//     // ... rest of the function
-// }
-
-char *get_next_line(int fd)
+char	*byte_read(int fd)
 {
-	char *buf;
-	static char *buffer;
-	ssize_t n;
-	char *tmp;
+	char	*buf;
+	ssize_t	n;
 
-	buffer = NULL;
 	buf = ft_calloc(BUFFER_SIZE + 1, sizeof(char));
+	if (!buf)
+		return (NULL);
 	n = read(fd, buf, BUFFER_SIZE);
 	if (n <= 0)
-			return NULL;
-	else if (n > 0)
 	{
-		buf[n] = '\0';   // ← tady přidám ukončovací znak
+		free(buf);
+		return (NULL);
 	}
-	if (buffer == NULL)           // ← první volání
-			tmp = ft_strdup(buf);
-	else
-	tmp = ft_strjoin(buffer, buf);
-	free(buffer);
-	buffer = tmp;
-	return (tmp);
+	else if (n > 0)
+		buf[n] = '\0';
+	return (buf);
 }
 
+char	*join_buffer(int fd)
+{
+	char	*new_line;
+	char	*joined;
+	char	*tmp;
+	char	*new;
 
+	new_line = NULL;
+	joined = NULL;
+	new = NULL;
+	while (new_line == NULL)
+	{
+		tmp = byte_read(fd);
+		if (!tmp) // konec souboru
+			break ;
+		new_line = ft_strrchr(tmp, '\n');
+		if (!joined)
+			joined = ft_strdup(tmp);
+		else
+		{
+			new = ft_strjoin(joined, tmp);
+			free(joined);
+			joined = new;
+		}
+		free(tmp);
+	}
+	return (joined);
+}
 
+char	*next_line(int fd)
 
+{
+	char *line;
+	int i;
+	int n;
+	char *newline;
+
+	i = 0;
+	n = 0;
+	line = join_buffer(fd);
+	if (!line)
+		return (NULL);
+	while (line[i] != '\n' && line[i] != '\0')
+		i++;
+	newline = malloc((sizeof(char)) * (i + 1));
+	while (n < i)
+	{
+		newline[n] = line[n];
+		++n;
+	}
+	newline[n] = '\0';
+	return (newline);
+}
+
+char	*start_line(int fd)
+{
+	char	*longline;
+	char	*start;
+	char	*start2;
+
+	longline = join_buffer(fd);
+	if (!longline)
+		return (NULL);
+	start = ft_strrchr(longline, '\n');
+	if (!start)
+	{
+		free(longline);
+		return (NULL);
+	}
+	// start = start + 1;  //pouze pokud chci preskocit '\n'
+	start2 = ft_strdup(start);
+	free(longline);
+	free(start);
+	printf("start line : %s\n", start2);
+	return (start2);
+}
