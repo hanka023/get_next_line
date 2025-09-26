@@ -22,56 +22,43 @@ char	*byte_read(int fd)
 		return (NULL);
 	}
 	else if (n > 0)
-	{
-		buf[n] = '\0'; // ← tady přidám ukončovací znak
-	}
-	/**************************test**************** */
-	// printf("***********  buf = %s \n\n", buf);
-	/**************************test**************** */
+		buf[n] = '\0';
+	printf("buf %s\n\n", buf);
 	return (buf);
 }
 
 char	*join_buffer(int fd)
 {
 	char		*new_line;
-	static char	*buffer;
 	char		*joined;
 	char		*tmp;
 
 	new_line = NULL;
 	while (new_line == NULL)
 	{
-		// printf(" ------------------nove while ------------ \n\n");
 		tmp = byte_read(fd);
 		new_line = ft_strrchr(tmp, '\n');
-		// printf("***********  tmp = %s \n\n", tmp);
-		// printf(" ********* new_line = %s \n\n", new_line);
-		// printf(" ********* buffer pred upravou  = %s \n\n", buffer);
-		if (!buffer)
-			buffer = ft_strdup(tmp); // první alokace
+		if (!joined)
+			joined = ft_strdup(tmp);
 		else
 		{
-			joined = ft_strjoin(buffer, tmp);
-			free(buffer);
-			buffer = joined;
+			joined = ft_strjoin(joined, tmp);
 		}
-		// printf(" ********* buffer posledni = %s \n\n", buffer);
 	}
-	// printf(" ********* buffer hotovy = %s \n\n", buffer);
-	return (buffer);
+	printf("joined %s\n\n", joined);
+	return (joined);
 }
 
-char	*get_next_line(int fd)
+char	*next_line(int fd)
+
 {
 	char	*line;
 	int		i;
 	int		n;
 	char	*newline;
-	char	*res;
 
 	i = 0;
 	n = 0;
-	res = 0;
 	line = join_buffer(fd);
 	if (!line)
 		return (NULL);
@@ -90,39 +77,51 @@ char	*get_next_line(int fd)
 
 char *start_line(int fd)
 {
+	char	*start;
+	char	*longline;
+	// int		i;
+	// int		j;
 
- static char *buffer;
-char *line;
-char *newline;
-int l;
-int n;
-
-
-
-line = join_buffer(fd);
-    if (!line)
-        return (NULL);
-l = (int)ft_strlen(line);
-//printf(" *********  line = %s \n\n", line);
-
-newline = get_next_line(fd);
-	  if (!newline)
-        return (NULL);
-n = (int)ft_strlen(newline);
+	// i = 0;
+	// j = 0;
 
 
-buffer = line;
+	size_t len;
+char *x;
 
-//printf(" *res= = %s \n\n", line);
-// printf(" *newline = %s \n\n", newline);
-buffer[n] = '\0';
 
-//free(line);
+	start = next_line(fd);
+	if (!start)
+    	return NULL;
+	longline = join_buffer(fd);
+	if (!longline)
+    	return start;
 
-free(newline);
-return(buffer);
 
+	len = ft_strlen(longline);
+printf("novy radek %s\n\n", start);
+printf("dlouhy radek %s\n\n", longline);
+
+	// while (start[i] != '\0')
+	// {
+	// 	i++;
+	// 	j++;
+	// }
+	// i = 0;
+	// while (longline[j] !='\0')
+	// {
+	// 	start[i] = longline[j];
+	// 	++i;
+	// 	++j;
+	// }
+	//free(longline);
+
+x = ft_strnstr(longline, '\0', len);
+printf("xxxx %s\n\n", x);
+	return(start);
 }
+
+
 
 
 
