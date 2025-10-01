@@ -1,11 +1,9 @@
 
 #include "get_next_line.h"
-#include <fcntl.h>  // open()
-#include <stdio.h>  // printf()
-#include <stdlib.h> // exit()
-#include <unistd.h> // read(), close()
-
-
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 char	*byte_read(int fd)
 {
@@ -21,110 +19,94 @@ char	*byte_read(int fd)
 		free(buf);
 		return (NULL);
 	}
-	else if (n > 0)
-		buf[n] = '\0';
-	printf("buf %s\n\n", buf);
+	// else if (n > 0)
+	// 	buf[n] = '\0';
 	return (buf);
 }
 
-char	*join_buffer(int fd)
+char	*join_buffer(char *buffer, int fd)
 {
-	char		*new_line;
-	char		*joined;
-	char		*tmp;
+	char	*new_line;
+	char	*tmp;
+	char	*line;
 
 	new_line = NULL;
+	if(buffer)
+		new_line = ft_strchr(buffer, '\n');
+	if(new_line)
+		return(buffer);
+
 	while (new_line == NULL)
 	{
 		tmp = byte_read(fd);
-		new_line = ft_strrchr(tmp, '\n');
-		if (!joined)
-			joined = ft_strdup(tmp);
+		if (!tmp)
+			break;
+		if(buffer)
+			line = ft_strjoin(buffer, tmp);
 		else
-		{
-			joined = ft_strjoin(joined, tmp);
-		}
+			line = ft_strdup(tmp);
+		free(buffer);
+		free(tmp);
+		buffer = line;
+		new_line = ft_strchr(line, '\n');
 	}
-	printf("joined %s\n\n", joined);
-	return (joined);
+	return(buffer);
 }
 
-char	*next_line(int fd)
+char	*next_line(char *buffer)
 
 {
-	char	*line;
-	int		i;
-	int		n;
-	char	*newline;
+	int i;
+	int n;
+	char *newline;
 
 	i = 0;
 	n = 0;
-	line = join_buffer(fd);
-	if (!line)
+	if (!buffer)
 		return (NULL);
-	while (line[i] != '\n' && line[i] != '\0')
+	while (buffer[i] != '\n' && buffer[i] != '\0')
 		i++;
 	newline = malloc((sizeof(char)) * (i + 1));
 	while (n < i)
 	{
-		newline[n] = line[n];
+		newline[n] = buffer[n];
 		++n;
 	}
 	newline[n] = '\0';
 	return (newline);
 }
 
-
-char *start_line(int fd)
+char	*start_line(char *buffer)
 {
 	char	*start;
-	char	*longline;
-	// int		i;
-	// int		j;
+	char	*start2;
 
-	// i = 0;
-	// j = 0;
-
-
-	size_t len;
-char *x;
-
-
-	start = next_line(fd);
+	start = NULL;
+	start2 = NULL;
+	if (!buffer)
+		return (NULL);
+	start = ft_strchr(buffer, '\n');
 	if (!start)
-    	return NULL;
-	longline = join_buffer(fd);
-	if (!longline)
-    	return start;
-
-
-	len = ft_strlen(longline);
-printf("novy radek %s\n\n", start);
-printf("dlouhy radek %s\n\n", longline);
-
-	// while (start[i] != '\0')
-	// {
-	// 	i++;
-	// 	j++;
-	// }
-	// i = 0;
-	// while (longline[j] !='\0')
-	// {
-	// 	start[i] = longline[j];
-	// 	++i;
-	// 	++j;
-	// }
-	//free(longline);
-
-x = ft_strnstr(longline, '\0', len);
-printf("xxxx %s\n\n", x);
-	return(start);
+		return (NULL);
+	start++;
+	start2 = ft_strdup(start);
+	free(buffer);
+	buffer = ft_strdup(start2);
+	return (start2);
 }
 
+char *get_next_line(int fd)
+{
+	static char *buffer;
+	char		*next;
 
+	if (!buffer)
 
-
-
+	buffer = join_buffer(buffer,fd);
+	next = next_line(buffer);
+	buffer = start_line(buffer);
+	return(next);
+}
 
 
 
