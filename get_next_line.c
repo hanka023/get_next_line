@@ -1,11 +1,9 @@
 
 #include "get_next_line.h"
-#include <fcntl.h>  // open()
-#include <stdio.h>  // printf()
-#include <stdlib.h> // exit()
-#include <unistd.h> // read(), close()
-
-
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 char	*byte_read(int fd)
 {
@@ -21,111 +19,135 @@ char	*byte_read(int fd)
 		free(buf);
 		return (NULL);
 	}
-	else if (n > 0)
-	{
-		buf[n] = '\0'; // ← tady přidám ukončovací znak
-	}
-	/**************************test**************** */
-	// printf("***********  buf = %s \n\n", buf);
-	/**************************test**************** */
 	return (buf);
 }
 
-char	*join_buffer(int fd)
+char	*join_buffer(char *buffer, int fd)
 {
-	char		*new_line;
-	static char	*buffer;
-	char		*joined;
-	char		*tmp;
+	char	*new_line;
+	char	*tmp;
+	char	*line;
 
 	new_line = NULL;
+	if(buffer)
+		new_line = ft_strchr(buffer, '\n');
+	if(new_line)
+		return(buffer);
+
 	while (new_line == NULL)
 	{
-		// printf(" ------------------nove while ------------ \n\n");
 		tmp = byte_read(fd);
-		new_line = ft_strrchr(tmp, '\n');
-		// printf("***********  tmp = %s \n\n", tmp);
-		// printf(" ********* new_line = %s \n\n", new_line);
-		// printf(" ********* buffer pred upravou  = %s \n\n", buffer);
-		if (!buffer)
-			buffer = ft_strdup(tmp); // první alokace
+		//printf("tmp: %s\n", tmp);
+		if (!tmp)
+			break;
+		//printf("buffer před join: %s\n", buffer ? buffer : "(null)");
+		if(buffer)
+			line = ft_strjoin(buffer, tmp);
 		else
-		{
-			joined = ft_strjoin(buffer, tmp);
-			free(buffer);
-			buffer = joined;
-		}
-		// printf(" ********* buffer posledni = %s \n\n", buffer);
+			line = ft_strdup(tmp);
+		//printf("line po join: %s\n", line);
+
+		free(buffer); //?????????
+		free(tmp);
+		buffer = line;
+
+		new_line = ft_strchr(line, '\n');
+
 	}
-	// printf(" ********* buffer hotovy = %s \n\n", buffer);
-	return (buffer);
+
+// printf("budffer na konci join buffer: %s\n", buffer);
+// 		printf("linena konci: %s\n", line);
+
+		return(buffer);
+
 }
 
-char	*get_next_line(int fd)
+char	*next_line(char *buffer)
+
 {
-	char	*line;
-	int		i;
-	int		n;
-	char	*newline;
-	char	*res;
+	int i;
+	int n;
+	char *line;
 
 	i = 0;
 	n = 0;
-	res = 0;
-	line = join_buffer(fd);
-	if (!line)
+//printf("budffer v nextline: %s\n", buffer);
+
+	if (!buffer || buffer[0] == '\0')
 		return (NULL);
-	while (line[i] != '\n' && line[i] != '\0')
+
+	while (buffer[i] != '\n' && buffer[i] != '\0' )
 		i++;
-	newline = malloc((sizeof(char)) * (i + 1));
-	while (n < i)
+
+	if (buffer[i] == '\n')
+		line = malloc((sizeof(char)) * (i + 2));
+	else
+		line = malloc((sizeof(char)) * (i + 1));
+	if (!line)
+        return (NULL);
+	while (buffer[n] && (n <= i))
 	{
-		newline[n] = line[n];
+		line[n] = buffer[n];
 		++n;
 	}
-	newline[n] = '\0';
-	return (newline);
+
+	line[n] = '\0';
+//printf("-------line v nextline: %s\n", line);
+	return (line);
+
 }
 
 
-char *start_line(int fd)
+char	*start_line(char *buffer)
 {
+	char	*start;
+	char	*start2;
 
- static char *buffer;
-char *line;
-char *newline;
-int l;
-int n;
-
-
-
-line = join_buffer(fd);
-    if (!line)
-        return (NULL);
-l = (int)ft_strlen(line);
-//printf(" *********  line = %s \n\n", line);
-
-newline = get_next_line(fd);
-	  if (!newline)
-        return (NULL);
-n = (int)ft_strlen(newline);
+	start = NULL;
+	start2 = NULL;
+	if (!buffer)
+		return (NULL);
+	start = ft_strchr(buffer, '\n');
+	if (!start || start == NULL)
+	{
+		free(buffer);
+		return (NULL);
+	}
 
 
-buffer = line;
+	// start++; ????
 
-//printf(" *res= = %s \n\n", line);
-// printf(" *newline = %s \n\n", newline);
-buffer[n] = '\0';
+	 start2 = ft_strdup(start);
+//free(start); //?????
 
-//free(line);
-
-free(newline);
-return(buffer);
-
+	free(buffer);
+buffer = start2;
+	return (buffer);
 }
 
+char *get_next_line(int fd)
+{
+	static char *buffer;
+	char		*next;
 
 
+
+	buffer = join_buffer(buffer,fd);
+	//printf("buffer pred nextline:	 %s\n", buffer);
+	next = next_line(buffer);
+	//printf("next %s\n", next);
+	buffer = start_line(buffer);
+	//printf("start %s\n", buffer);
+
+
+
+
+	if(next)
+		return(next);
+	else
+		return(NULL);
+
+}
 
 
 
