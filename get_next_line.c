@@ -45,7 +45,7 @@ char	*join_buffer(char *buffer, int fd)
 		if (!tmp)
 			break;
 		if(buffer)
-			line2 = ft_strjoin(line, tmp);
+			line = ft_strjoin(buffer, tmp);
 		else
 			line = ft_strdup(tmp);
 		
