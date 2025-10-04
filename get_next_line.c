@@ -50,15 +50,16 @@ char	*join_buffer(char *buffer, int fd)
 			line = ft_strdup(tmp);
 		
 		printf("buffer uprostred join:>%s<", buffer);
-		free(line);
+		
 
-		//free(buffer);
+		free(buffer);
 		free(tmp);
+		buffer = line;
 		//buffer = ft_strdup(line);
 		
 	
 		new_line = ft_strchr(line, '\n');
-		free(line);
+		//free(line);//????
 	}
 		printf("buffer na konci join:>>>%s<<<", buffer);
 
