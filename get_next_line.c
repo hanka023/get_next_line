@@ -15,13 +15,13 @@ char	*byte_read(int fd)
 		return (NULL);
 
 	n = read(fd, buf, BUFFER_SIZE);
-	if (n <= 0)
+	if (n <=0)
 	{
 		free(buf);
+		// free (buffer);
 		return (NULL);
 	}
-	buf[n] = '\0'; 
-	// printf("buf >%s<",buf);
+	buf[n] = '\0'; //ukoncit buf
 	return (buf);
 }
 
@@ -30,7 +30,6 @@ char	*join_buffer(char *buffer, int fd)
 	char	*new_line;
 	char	*tmp;
 	char	*line;
-	char	*line2;
 
 	new_line = NULL;
 
@@ -48,20 +47,12 @@ char	*join_buffer(char *buffer, int fd)
 			line = ft_strjoin(buffer, tmp);
 		else
 			line = ft_strdup(tmp);
-		
-		printf("buffer uprostred join:>%s<", buffer);
-		
 
 		free(buffer);
 		free(tmp);
 		buffer = line;
-		//buffer = ft_strdup(line);
-		
-	
 		new_line = ft_strchr(line, '\n');
-		//free(line);//????
 	}
-		printf("buffer na konci join:>>>%s<<<", buffer);
 
 		return(buffer);
 
@@ -77,15 +68,15 @@ char	*next_line(char *buffer)
 
 	i = 0;
 	n = 0;
-
 	if (!buffer|| buffer[0] == '\0')
 		return (NULL);
 	while (buffer[i] != '\n' && buffer[i] != '\0')
 		i++;
-		
+
 	if (buffer[i] == '\n')
 		++i;
-	
+
+
 	newline = malloc((sizeof(char)) * (i + 1));
 	while (n < i)
 	{
@@ -93,7 +84,7 @@ char	*next_line(char *buffer)
 		n++;
 	}
 		newline[n] = '\0';
-//printf("next line:>>>%s<<<", newline);
+
 	return (newline);
 }
 
@@ -101,57 +92,53 @@ char	*start_line(char *buffer)
 {
 	char	*start;
 	char	*start2;
-	char	len;
 
-	len = 0;
 	start = NULL;
 	start2 = NULL;
-
 	if (!buffer)
 		return (NULL);
-
-	//printf("buffer na zacatku startline:	 %s\n", buffer);
-
 	start = ft_strchr(buffer, '\n');
-
 	if (!start)
 	{
 		free(buffer);
 		return (NULL);
 	}
-
 	start++;
-
 	start2 = ft_strdup(start);
 	free(buffer);
-	buffer = ft_strdup(start2);
-	free(start2);
-	//printf("startline:	 >>>%s<<<", buffer);
-	return (buffer);
+	return (start2);
 }
 
 char *get_next_line(int fd)
 {
 	static char *buffer;
-	char		*line;
+	char		*next;
 
-	if (fd < 0 )
+
+
+
+	if (fd < 0 || fd > 10240)
 	{
+		// printf("chybaaaaaaa!!!!!! \n");
    		return (NULL);
 	}
 
-	buffer = join_buffer(buffer,fd);
-	//printf("join_buffer %s...", buffer);
-	if (!buffer)
-		return (NULL);
-	line = next_line(buffer);
-	//printf("next %s...", next);
 
+	buffer = join_buffer(buffer,fd);
+	// printf("buffer %s\n", buffer);
+	next = next_line(buffer);
+	// printf("next %s\n", next);
 	buffer = start_line(buffer);
-	//printf("start %s...", buffer);
-	if(line)
-		return(line);
+	// printf("start %s\n", buffer);
+	if(next)
+		return(next);
 	else
 		return(NULL);
 
 }
+
+
+
+
+
+
